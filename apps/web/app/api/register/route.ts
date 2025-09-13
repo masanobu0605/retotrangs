@@ -11,4 +11,3 @@ export async function POST(req: Request) {
   const data = await res.json().catch(() => ({}))
   return NextResponse.json(data, { status: res.status })
 }
-

@@ -15,10 +15,10 @@ export async function POST(req: Request) {
     cookieStore.set('session', data.token, {
       httpOnly: true,
       sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
       path: '/',
       maxAge: 60 * 60 * 24 * 7,
     })
   }
   return NextResponse.json({ role: data.role ?? null, ok: res.ok }, { status: res.status })
 }
-
