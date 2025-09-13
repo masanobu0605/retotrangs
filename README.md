@@ -1,70 +1,53 @@
-# new-service-20250913
+# Next.js + FastAPI 会員登録ツール (Docker対応)
 
-Node.js のゲートウェイ (`node-api`) と、Python(FastAPI) のバックエンド (`python-api`) を並走させる最小構成です。Windows + PowerShell を前提にしています。
+## 概要
+- フロント: Next.js (App Router)
+- API: FastAPI (Python)
+- 認証: Python側でJWT発行、Nextのミドルウェアで検証
+- DB: SQLite (ボリューム永続化)
 
-## 構成
-- `python-api/`: FastAPI アプリ（`/health`, `/hello`）
-- `node-api/`: Node BFF（`/health` と `/api/py/*` を Python にプロキシ）
-- `docker-compose.yml`: 2 サービスを起動（Node → Python を内部名で参照）
+## かんたん起動 (Docker)
+1. `.env.example` を参考に `.env` を作成
+2. `docker compose up --build`
+3. ブラウザで `http://localhost:3000` を開く
+   - 管理ログイン: `admin@example.com` / `admin123` (初回起動時に作成)
 
-## 使い方（Docker）
-Docker を使う最短手順です。
+## ローカル起動 (Docker なし)
+- API
+  ```powershell
+  cd apps/api
+  python -m venv .venv; .\\.venv\\Scripts\\Activate.ps1
+  pip install -r requirements.txt
+  $env:SESSION_SECRET='devsupersecret'
+  $env:DB_PATH=(Resolve-Path ./data/app.db)
+  $env:CORS_ORIGINS='http://localhost:3000'
+  $env:ADMIN_EMAIL='admin@example.com'
+  $env:ADMIN_PASSWORD='admin123'
+  python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+  ```
+- Web
+  ```powershell
+  cd apps/web
+  pnpm install
+  $env:API_BASE_URL='http://localhost:8000'
+  $env:SESSION_SECRET='devsupersecret'
+  pnpm dev
+  ```
 
-```powershell
-cd "$env:USERPROFILE\Desktop\new-service-20250913"
-docker compose pull
-docker compose up -d
-```
+## 機能
+- 会員登録 (氏名/メール/パスワード)
+- ログイン (管理者/一般ユーザー)
+- 管理画面: 登録ユーザー一覧
+- ユーザー画面: 自分の会員情報
 
-起動確認:
+## ディレクトリ
+- `apps/web`: Next.js フロント
+- `apps/api`: FastAPI バックエンド
 
-- Python: http://127.0.0.1:8000/health → `{ "ok": true, "service": "python-api" }`
-- Node:   http://127.0.0.1:3000/health → `{ "ok": true, "service": "node-api" }`
-- 経由確認: http://127.0.0.1:3000/api/py/hello?name=masan → Python の `/hello` へプロキシ
+## 注意
+- 本実装は学習用の最小構成です。実運用では以下の強化を推奨:
+  - パスワードポリシー/ロックアウト
+  - HTTPS + セキュア/HttpOnly/SameSite Cookie設定
+  - ログ/監査/レート制限
+  - マイグレーションツール導入 (Alembic)
 
-補足:
-- 初回は Python コンテナ内で `pip install -r requirements.txt` が走るため少し時間がかかります。
-- コンテナ停止は `docker compose down`。ログは `docker compose logs -f`。
-
-## ローカル実行（開発）
-### 1) Python（FastAPI）
-```powershell
-cd "$env:USERPROFILE\Desktop\new-service-20250913\python-api"
-py -3.13 -m venv .venv
-. .venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
-```
-
-### 2) Node（BFF）
-```powershell
-cd "$env:USERPROFILE\Desktop\new-service-20250913\node-api"
-pnpm install
-pnpm dev
-```
-
-- Node Health: http://127.0.0.1:3000/health
-- Python 経由: http://127.0.0.1:3000/api/py/hello?name=masan
-
-## テスト
-最小の統合テスト（Node 側）と、FastAPI の API テスト（Python 側）を追加しています。
-
-```powershell
-cd "$env:USERPROFILE\Desktop\new-service-20250913\node-api"
-pnpm test
-```
-
-Python 側のテスト（ローカル仮想環境）:
-
-```powershell
-cd "$env:USERPROFILE\Desktop\new-service-20250913\python-api"
-py -3.13 -m venv .venv
-. .venv\Scripts\Activate.ps1
-pip install -r requirements.txt -r requirements-dev.txt
-pytest -q
-```
-
-今後の拡張（任意）
-- Python 直叩きのテストを `pytest` + `TestClient` で追加
-- OpenAPI から TypeScript 型生成（`openapi-typescript`）
-- docker-compose に `healthcheck` を追加（済）

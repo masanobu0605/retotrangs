@@ -1,2 +1,3 @@
-﻿packages:
-  - "node-api"
+packages:
+  - "apps/*"
+

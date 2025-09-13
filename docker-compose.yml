@@ -1,34 +1,31 @@
-﻿services:
-  python-api:
-    image: python:3.13-slim
-    working_dir: /app
-    command: ["sh", "-lc", "pip install -r requirements.txt && python -m uvicorn main:app --host 0.0.0.0 --port 8000"]
+services:
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    environment:
+      - SESSION_SECRET=${SESSION_SECRET:-devsupersecret}
+      - DB_PATH=/app/data/app.db
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
     volumes:
-      - ./python-api:/app
+      - db_data:/app/data
     ports:
       - "8000:8000"
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0) if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2).status == 200 else sys.exit(1)"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-  node-api:
-    image: node:22-alpine
-    working_dir: /app
-    command: ["node", "src/index.js"]
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
     environment:
-      - PY_BASE=http://python-api:8000
-    volumes:
-      - ./node-api:/app
+      - API_BASE_URL=http://api:8000
+      - SESSION_SECRET=${SESSION_SECRET:-devsupersecret}
     ports:
       - "3000:3000"
     depends_on:
-      python-api:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 5s
+      - api
+
+volumes:
+  db_data:
+

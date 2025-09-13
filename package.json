@@ -1,0 +1,21 @@
+{
+  "name": "new-service-20250913",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": [
+    "apps/web"
+  ],
+  "scripts": {
+    "dev": "pnpm --filter @app/web dev",
+    "build": "pnpm --filter @app/web build",
+    "start": "pnpm --filter @app/web start",
+    "lint": "pnpm --filter @app/web lint",
+    "typecheck": "pnpm --filter @app/web typecheck",
+    "test": "echo \"(no tests yet)\""
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
+

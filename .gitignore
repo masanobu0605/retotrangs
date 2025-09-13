@@ -1,20 +1,25 @@
-﻿# Node
+# Node/Next
+.next/
 node_modules/
-dist/
+.pnpm-store/
 pnpm-lock.yaml
+
+# Logs
 npm-debug.log*
-coverage/
-.env
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor
+.vscode/
+.idea/
 
 # Python
 __pycache__/
-.venv/
-venv/
-.env
-*.pyc
 .pytest_cache/
-.mypy_cache/
+.venv/
 
-# OS
-.DS_Store
-Thumbs.db
+# Local data/env
+.env
+data/
+
