@@ -1,11 +1,33 @@
-﻿# new-service-20250913
+# new-service-20250913
 
-このプロジェクトは Node.js のゲートウェイ(`node-api`)と、Python(FastAPI)のバックエンド(`python-api`)で構成される最小雛形です。
+Node.js のゲートウェイ (`node-api`) と、Python(FastAPI) のバックエンド (`python-api`) を並走させる最小構成です。Windows + PowerShell を前提にしています。
 
-## 起動手順（Windows/PowerShell）
+## 構成
+- `python-api/`: FastAPI アプリ（`/health`, `/hello`）
+- `node-api/`: Node BFF（`/health` と `/api/py/*` を Python にプロキシ）
+- `docker-compose.yml`: 2 サービスを起動（Node → Python を内部名で参照）
 
-### 1) Python バックエンド
+## 使い方（Docker）
+Docker を使う最短手順です。
 
+```powershell
+cd "$env:USERPROFILE\Desktop\new-service-20250913"
+docker compose pull
+docker compose up -d
+```
+
+起動確認:
+
+- Python: http://127.0.0.1:8000/health → `{ "ok": true, "service": "python-api" }`
+- Node:   http://127.0.0.1:3000/health → `{ "ok": true, "service": "node-api" }`
+- 経由確認: http://127.0.0.1:3000/api/py/hello?name=masan → Python の `/hello` へプロキシ
+
+補足:
+- 初回は Python コンテナ内で `pip install -r requirements.txt` が走るため少し時間がかかります。
+- コンテナ停止は `docker compose down`。ログは `docker compose logs -f`。
+
+## ローカル実行（開発）
+### 1) Python（FastAPI）
 ```powershell
 cd "$env:USERPROFILE\Desktop\new-service-20250913\python-api"
 py -3.13 -m venv .venv
@@ -14,33 +36,35 @@ pip install -r requirements.txt
 uvicorn main:app --reload --port 8000
 ```
 
-- ヘルスチェック: http://127.0.0.1:8000/health
-
-### 2) Node.js ゲートウェイ
-
-別ターミナルで:
-
+### 2) Node（BFF）
 ```powershell
 cd "$env:USERPROFILE\Desktop\new-service-20250913\node-api"
 pnpm install
 pnpm dev
 ```
 
-- ヘルスチェック: http://127.0.0.1:3000/health
-- Python へのプロキシ例: http://127.0.0.1:3000/api/py/hello?name=masan → `python-api` の `/hello`
+- Node Health: http://127.0.0.1:3000/health
+- Python 経由: http://127.0.0.1:3000/api/py/hello?name=masan
 
-## 設計メモ
-- Node.js: 認証/認可、リクエスト集約、静的配信、BFF(Backend For Frontend) 役。
-- Python: ドメインロジックや数値計算、機械学習処理などを担当。
+## テスト
+最小の統合テスト（Node 側）と、FastAPI の API テスト（Python 側）を追加しています。
 
-### 長所
-- ライブラリ適合性の最大化（Web は Node、数値/ML は Python）
-- 責務分離で故障切り分けが容易
+```powershell
+cd "$env:USERPROFILE\Desktop\new-service-20250913\node-api"
+pnpm test
+```
 
-### 短所
-- デプロイ/監視/ローカル起動の複雑さ増
+Python 側のテスト（ローカル仮想環境）:
 
-## 次の一手
-- OpenAPI から TypeScript 型生成（例: `openapi-typescript`）
-- テスト（Jest/Vitest, Pytest）と CI の追加
-- コンテナ化（docker-compose で 2 サービス起動）
+```powershell
+cd "$env:USERPROFILE\Desktop\new-service-20250913\python-api"
+py -3.13 -m venv .venv
+. .venv\Scripts\Activate.ps1
+pip install -r requirements.txt -r requirements-dev.txt
+pytest -q
+```
+
+今後の拡張（任意）
+- Python 直叩きのテストを `pytest` + `TestClient` で追加
+- OpenAPI から TypeScript 型生成（`openapi-typescript`）
+- docker-compose に `healthcheck` を追加（済）
