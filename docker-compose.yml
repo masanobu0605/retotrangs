@@ -1,0 +1,21 @@
+﻿services:
+  python-api:
+    image: python:3.13-slim
+    working_dir: /app
+    command: ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+    volumes:
+      - ./python-api:/app
+    ports:
+      - "8000:8000"
+  node-api:
+    image: node:22-alpine
+    working_dir: /app
+    command: ["node", "src/index.js"]
+    environment:
+      - PY_BASE=http://python-api:8000
+    volumes:
+      - ./node-api:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - python-api
