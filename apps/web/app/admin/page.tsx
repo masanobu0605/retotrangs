@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { headers } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { absolute } from '@/lib/url'
 
 async function getUsers() {
@@ -14,7 +15,17 @@ async function getUsers() {
   return data.users ?? []
 }
 
+async function assertAdmin() {
+  const h = await headers()
+  const url = await absolute('/api/me')
+  const res = await fetch(url, { headers: { cookie: h.get('cookie') ?? '' }, cache: 'no-store' })
+  if (!res.ok) redirect('/login')
+  const me = await res.json().catch(() => null)
+  if (!me || me.role !== 'admin') redirect('/login')
+}
+
 export default async function AdminPage() {
+  await assertAdmin()
   const users = await getUsers()
   return (
     <div className="space-y-6">
@@ -55,4 +66,3 @@ export default async function AdminPage() {
 }
 
 export const dynamic = 'force-dynamic'
-

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { headers } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { absolute } from '@/lib/url'
 
 async function getMe() {
@@ -15,6 +16,7 @@ async function getMe() {
 
 export default async function MePage() {
   const me = await getMe()
+  if (!me) redirect('/login')
   if (!me) {
     return (
       <div className="mx-auto max-w-xl">
@@ -41,4 +43,3 @@ export default async function MePage() {
 }
 
 export const dynamic = 'force-dynamic'
-

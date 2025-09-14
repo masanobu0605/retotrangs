@@ -1,0 +1,4 @@
+next-web  | Unhandled Runtime Error
+next-web  | Error: Failed to parse URL from /api/admin/users
+python-api | INFO Registered user email=user1@example.com
+python-api | ERROR Email already registered
