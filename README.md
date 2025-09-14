@@ -1,29 +1,27 @@
-# Next.js + FastAPI 会員登録ツール (Docker対応)
+# Next.js + FastAPI モノレポ（Docker対応）
 
 ## 概要
-- フロント: Next.js (App Router)
-- API: FastAPI (Python)
-- 認証: Python側でJWT発行、Nextのミドルウェアで検証
-- DB: SQLite (ボリューム永続化)
+- Web: Next.js 14 (App Router)
+- API: FastAPI (Python 3.13)
+- 認証: Python側でJWT発行、Next側でCookie保存（HttpOnly / SameSite=Lax）
+- DB: デフォルトは SQLite（ローカル簡易動作）。本番は PostgreSQL + RLS を想定
 
-## かんたん起動 (Docker)
-1. `.env.example` を参考に `.env` を作成
-2. `docker compose up --build`
+## クイックスタート（Docker）
+1. `.env` を準備
+2. `docker compose up --build -d`
 3. ブラウザで `http://localhost:3000` を開く
-   - 管理ログイン: `admin@example.com` / `admin123` (初回起動時に作成)
+   - 初期ログイン: `admin@example.com` / `admin123`
+4. 停止/削除: `docker compose down -v`（ローカルDBも削除されます）
 
-## ローカル起動 (Docker なし)
+## ローカル実行（手動）
 - API
   ```powershell
-  cd apps/api
-  python -m venv .venv; .\\.venv\\Scripts\\Activate.ps1
-  pip install -r requirements.txt
+  cd python-api
+  python -m venv .venv; .\.venv\Scripts\Activate.ps1
+  pip install -r requirements.txt -r requirements-dev.txt
   $env:SESSION_SECRET='devsupersecret'
-  $env:DB_PATH=(Resolve-Path ./data/app.db)
   $env:CORS_ORIGINS='http://localhost:3000'
-  $env:ADMIN_EMAIL='admin@example.com'
-  $env:ADMIN_PASSWORD='admin123'
-  python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+  uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
   ```
 - Web
   ```powershell
@@ -34,20 +32,11 @@
   pnpm dev
   ```
 
-## 機能
-- 会員登録 (氏名/メール/パスワード)
-- ログイン (管理者/一般ユーザー)
-- 管理画面: 登録ユーザー一覧
-- ユーザー画面: 自分の会員情報
+## 構成
+- `apps/web`: Next.js フロントエンド
+- `python-api`: FastAPI バックエンド
 
-## ディレクトリ
-- `apps/web`: Next.js フロント
-- `apps/api`: FastAPI バックエンド
-
-## 注意
-- 本実装は学習用の最小構成です。実運用では以下の強化を推奨:
-  - パスワードポリシー/ロックアウト
-  - HTTPS + セキュア/HttpOnly/SameSite Cookie設定
-  - ログ/監査/レート制限
-  - マイグレーションツール導入 (Alembic)
+## メモ（既知の事象）
+- Next.js 14 を使用中のため、開発時に「Next.js (14.x) is outdated」表示が出ることがあります。実行を阻害しない警告です。依存更新はネットワーク許可後に実施してください。
+- サーバーコンポーネントからの相対パス `fetch('/api/...')` により Node.js 22 で `Failed to parse URL` が出る場合があるため、内部API呼び出しは絶対URLに修正済みです（`apps/web/app/me/page.tsx` と `apps/web/app/admin/page.tsx`）。
 

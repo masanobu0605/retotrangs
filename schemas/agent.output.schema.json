@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/agent.output.schema.json",
+  "title": "AgentOutput",
+  "type": "object",
+  "required": ["summary", "changes", "metrics"],
+  "properties": {
+    "summary": { "type": "string" },
+    "changes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "metrics": {
+      "type": "object",
+      "required": ["latency_ms"],
+      "properties": {
+        "latency_ms": { "type": "number", "minimum": 0 },
+        "coverage": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": true
+    },
+    "audit_ref": { "type": "string" }
+  },
+  "additionalProperties": false
+}
+

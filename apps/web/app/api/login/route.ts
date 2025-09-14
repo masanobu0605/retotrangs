@@ -1,12 +1,13 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import { apiBase } from '@/lib/api'
 
 export async function POST(req: Request) {
   const body = await req.json()
-  const api = process.env.API_BASE_URL || 'http://localhost:8000'
+  const api = apiBase()
   const res = await fetch(`${api}/auth/login`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', 'X-Tenant': 'default' },
     body: JSON.stringify(body),
   })
   const data = await res.json().catch(() => ({}))

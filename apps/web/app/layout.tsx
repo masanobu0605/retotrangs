@@ -7,7 +7,7 @@ import { cookies } from 'next/headers'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: '会員管理ツール',
+  title: 'CRMデモ',
   description: 'Next.js + FastAPI Demo',
 }
 
@@ -17,8 +17,11 @@ async function Nav() {
   return (
     <nav className="container flex items-center justify-between py-4">
       <div className="flex items-center gap-4">
-        <Link href="/" className="font-semibold">会員管理</Link>
+        <Link href="/" className="font-semibold">CRM</Link>
         <Link href="/admin" className="btn-ghost">管理</Link>
+        <Link href="/accounts" className="btn-ghost">アカウント</Link>
+        <Link href="/contacts" className="btn-ghost">コンタクト</Link>
+        <Link href="/tasks" className="btn-ghost">タスク</Link>
         <Link href="/me" className="btn-ghost">ユーザー</Link>
       </div>
       <div className="flex items-center gap-2">
@@ -37,7 +40,6 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     <html lang="ja">
       <body className={inter.className}>
         <header className="border-b border-gray-200 dark:border-gray-800 bg-white/70 dark:bg-gray-900/70 backdrop-blur">
-          {/* @ts-expect-error Server Component */}
           <Nav />
         </header>
         <main className="container py-8">{children}</main>

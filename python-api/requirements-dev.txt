@@ -1,2 +1,4 @@
 pytest
 httpx>=0.24
+requests
+pytest-asyncio>=0.23

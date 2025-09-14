@@ -17,6 +17,9 @@ COPY lib ./lib
 
 RUN pnpm install --ignore-scripts || true
 
+# Reduce noise in dev containers
+ENV NEXT_TELEMETRY_DISABLED=1
+
 ENV HOST=0.0.0.0 PORT=3000
 EXPOSE 3000
 CMD ["pnpm", "dev"]

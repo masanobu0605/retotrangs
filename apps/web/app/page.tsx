@@ -20,15 +20,15 @@ export default function Page() {
     })
     const data = await res.json().catch(() => ({}))
     setLoading(false)
-    if (res.ok) setMsg('登録しました。ログインしてください。')
-    else setMsg(data?.detail ?? '登録に失敗しました。')
+    if (res.ok) setMsg('登録しました。ログインしてください')
+    else setMsg(data?.detail ?? '登録に失敗しました')
   }
 
   return (
     <div className="mx-auto max-w-xl">
       <div className="mb-8 text-center">
         <h1 className="text-2xl font-bold">会員登録</h1>
-        <p className="text-sm text-gray-500">必要事項を入力してアカウントを作成します。</p>
+        <p className="text-sm text-gray-500">必要事項を入力してアカウントを作成します</p>
       </div>
       <form onSubmit={onSubmit} className="card grid gap-4">
         <label className="grid gap-1">
@@ -50,3 +50,4 @@ export default function Page() {
     </div>
   )
 }
+

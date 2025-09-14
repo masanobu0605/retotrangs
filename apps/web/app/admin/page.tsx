@@ -1,14 +1,16 @@
 import Link from 'next/link'
 import { headers } from 'next/headers'
+import { absolute } from '@/lib/url'
 
 async function getUsers() {
   const h = await headers()
-  const res = await fetch(`/api/admin/users`, {
+  const url = await absolute('/api/admin/users')
+  const res = await fetch(url, {
     headers: { cookie: h.get('cookie') ?? '' },
     cache: 'no-store',
   })
   if (!res.ok) return []
-  const data = await res.json()
+  const data = await res.json().catch(() => ({}))
   return data.users ?? []
 }
 
@@ -42,7 +44,7 @@ export default async function AdminPage() {
             ))}
             {users.length === 0 && (
               <tr>
-                <td className="td" colSpan={4}>ユーザーがいません。</td>
+                <td className="td" colSpan={4}>ユーザーがいません</td>
               </tr>
             )}
           </tbody>
@@ -51,3 +53,6 @@ export default async function AdminPage() {
     </div>
   )
 }
+
+export const dynamic = 'force-dynamic'
+

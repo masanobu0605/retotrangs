@@ -12,10 +12,12 @@
     "start": "pnpm --filter @app/web start",
     "lint": "pnpm --filter @app/web lint",
     "typecheck": "pnpm --filter @app/web typecheck",
-    "test": "echo \"(no tests yet)\""
+    "api:test": "pytest -q python-api/tests",
+    "compose:up": "docker compose up --build -d",
+    "compose:down": "docker compose down -v",
+    "test": "pnpm api:test"
   },
   "engines": {
     "node": ">=22.0.0"
   }
 }
-

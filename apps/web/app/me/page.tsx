@@ -1,28 +1,32 @@
 import Link from 'next/link'
 import { headers } from 'next/headers'
+import { absolute } from '@/lib/url'
 
 async function getMe() {
   const h = await headers()
-  const res = await fetch(`/api/me`, {
+  const url = await absolute('/api/me')
+  const res = await fetch(url, {
     headers: { cookie: h.get('cookie') ?? '' },
     cache: 'no-store',
   })
   if (!res.ok) return null
-  return res.json()
+  return res.json().catch(() => null)
 }
 
 export default async function MePage() {
   const me = await getMe()
-  if (!me) return (
-    <div className="mx-auto max-w-xl">
-      <div className="card">
-        <p>ログインが必要です。</p>
-        <div className="mt-4">
-          <Link className="btn-primary" href="/login">ログインへ</Link>
+  if (!me) {
+    return (
+      <div className="mx-auto max-w-xl">
+        <div className="card">
+          <p>ログインが必要です</p>
+          <div className="mt-4">
+            <Link className="btn-primary" href="/login">ログインへ</Link>
+          </div>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
   return (
     <div className="mx-auto max-w-xl space-y-4">
       <h1 className="text-2xl font-bold">マイページ</h1>
@@ -35,3 +39,6 @@ export default async function MePage() {
     </div>
   )
 }
+
+export const dynamic = 'force-dynamic'
+

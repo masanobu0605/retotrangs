@@ -1,8 +1,9 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import { apiBase } from '@/lib/api'
 
 export async function GET() {
-  const api = process.env.API_BASE_URL || 'http://localhost:8000'
+  const api = apiBase()
   const cookieStore = await cookies()
   const token = cookieStore.get('session')?.value
   const res = await fetch(`${api}/admin/users`, {
@@ -12,4 +13,3 @@ export async function GET() {
   const data = await res.json().catch(() => ({}))
   return NextResponse.json(data, { status: res.status })
 }
-

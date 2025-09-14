@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/agent.input.schema.json",
+  "title": "AgentInput",
+  "type": "object",
+  "required": ["task"],
+  "properties": {
+    "task": { "type": "string", "minLength": 1 },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "coverage_min": { "type": "number", "minimum": 0, "maximum": 1 },
+        "max_files": { "type": "integer", "minimum": 1 },
+        "max_lines": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["plan", "dry-run", "apply", "verify", "rollback"]
+    }
+  },
+  "additionalProperties": false
+}
+
